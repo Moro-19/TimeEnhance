@@ -8,7 +8,6 @@ from Controllers.Reward_controller import reward_bp
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
 
-# Register all blueprints
 app.register_blueprint(user_bp)
 app.register_blueprint(task_bp)
 app.register_blueprint(store_bp)
