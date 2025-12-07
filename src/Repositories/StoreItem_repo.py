@@ -1,4 +1,4 @@
-from Models.StoreItem import Item
+from Models.StoreItem import StoreItem
 from Utils.File_manager import FileManager
 
 class ItemRepository:
@@ -11,5 +11,5 @@ class ItemRepository:
         rows = self.file_manager.read_csv(self.FILE_PATH)
         items = []
         for row in rows:
-            items.append(Item(*row))
+            items.append(StoreItem(*row))
         return items
