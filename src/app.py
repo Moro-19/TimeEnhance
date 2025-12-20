@@ -6,8 +6,11 @@ from Controllers.Inventory_controller import inventory_bp
 from Controllers.Reward_controller import reward_bp
 from Repositories.User_repo import UserRepository
 from Repositories.Task_repo import TaskRepository
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, 
+            template_folder='templates',
+            static_folder='static')
 app.secret_key = 'supersecretkey'
 
 app.register_blueprint(user_bp)
