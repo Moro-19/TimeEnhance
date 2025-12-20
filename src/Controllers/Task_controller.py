@@ -13,6 +13,10 @@ user_repo = UserRepository()
 def create_task():
     if request.method == 'POST':
         user_id = session.get('user_id')
+        if not user_id:
+            flash('Please login first')
+            return redirect(url_for('user.login'))
+        
         title = request.form.get('title')
         description = request.form.get('description', '')
         difficulty = request.form.get('difficulty', 'medium')
@@ -21,12 +25,13 @@ def create_task():
             flash('Title is required')
             return render_template('create_task.html')
         
-        if not difficulty in ['easy', 'medium', 'hard']:
+        if difficulty not in ['easy', 'medium', 'hard']:
             flash('Invalid difficulty selected')
             return render_template('create_task.html')
         
+        task_id = str(uuid.uuid4())
         task = Task(
-            TaskID=str(uuid.uuid4()), 
+            TaskID=task_id, 
             Title=title,
             Description=description,
             Difficulty=difficulty,
@@ -34,6 +39,20 @@ def create_task():
         )
         
         task_repo.save_task(task, user_id)
+        
+        file_manager = FileManager.get_instance()
+        reward_rows = file_manager.read_csv("Data/rewards.csv")
+        
+        if difficulty == 'easy':
+            xp, coins = 25, 5
+        elif difficulty == 'medium':
+            xp, coins = 50, 10
+        else:  
+            xp, coins = 100, 20
+        
+        reward_rows.append([task_id, str(xp), str(coins)])
+        file_manager.write_csv("Data/rewards.csv", reward_rows)
+        
         flash('Task created successfully!')
         return redirect(url_for('task.view_tasks', user_id=user_id))
     
@@ -49,19 +68,53 @@ def edit_task(user_id, task_id):
         return redirect(url_for('task.view_tasks', user_id=user_id))
     
     if request.method == 'POST':
-        task.Title = request.form.get('title')
-        task.Description = request.form.get('description', '')
-        task.Difficulty = request.form.get('difficulty')
+        new_title = request.form.get('title')
+        new_description = request.form.get('description', '')
+        new_difficulty = request.form.get('difficulty')
+        
+        file_manager = FileManager.get_instance()
+        task_rows = file_manager.read_csv("Data/tasks.csv")
+        
+        for row in task_rows:
+            if row[0] == task_id:
+                row[2] = new_title
+                row[3] = new_description
+                row[4] = new_difficulty
+        
+        file_manager.write_csv("Data/tasks.csv", task_rows)
+        
+        reward_rows = file_manager.read_csv("Data/rewards.csv")
+        if new_difficulty == 'easy':
+            xp, coins = 25, 5
+        elif new_difficulty == 'medium':
+            xp, coins = 50, 10
+        else:
+            xp, coins = 100, 20
+        
+        for row in reward_rows:
+            if row[0] == task_id:
+                row[1] = str(xp)
+                row[2] = str(coins)
+        
+        file_manager.write_csv("Data/rewards.csv", reward_rows)
+        
         flash('Task updated!')
         return redirect(url_for('task.view_tasks', user_id=user_id))
+    
     return render_template('edit_task.html', task=task, user_id=user_id)
 
 @task_bp.route('/<user_id>/delete/<task_id>', methods=['POST'])
 def delete_task(user_id, task_id):
     file_manager = FileManager.get_instance()
+    
     rows = file_manager.read_csv("Data/tasks.csv")
     updated_rows = [row for row in rows if row[0] != task_id]
     file_manager.write_csv("Data/tasks.csv", updated_rows)
+    
+    reward_rows = file_manager.read_csv("Data/rewards.csv")
+    updated_rewards = [row for row in reward_rows if row[0] != task_id]
+    file_manager.write_csv("Data/rewards.csv", updated_rewards)
+    
     flash('Task deleted!')
     return redirect(url_for('task.view_tasks', user_id=user_id))
 
@@ -70,34 +123,38 @@ def complete_task(user_id, task_id):
     tasks = task_repo.get_tasks_for_user(user_id)
     task = next((t for t in tasks if t.TaskID == task_id), None)
     
-    if task and task.Status != 'completed':
-        task_repo.update_task_status(task_id, 'completed')
-        
-        from Utils.File_manager import FileManager
-        file_manager = FileManager.get_instance()
-        
-        reward_rows = file_manager.read_csv("Data/rewards.csv")
-        reward = None
-        for row in reward_rows:
-            if row[0] == task_id:  
-                xp = int(row[1])
-                coins = int(row[2])
-                reward = True
-                break
-        
-        if reward:
-            users = user_repo.get_all_users()
-            user = next((u for u in users if u.UserID == user_id), None)
-            if user:
-                user.TotalXP += xp
-                user.TotalTimeCoins += coins
-            
-            flash(f"Task completed! +{xp} XP, +{coins} Coins")
-        else:
-            flash('Task completed but no reward found')
-    else:
-        flash('Task already completed')
+    if not task:
+        flash('Task not found')
+        return redirect(url_for('task.view_tasks', user_id=user_id))
     
+    if task.Status == 'completed':
+        flash('Task already completed')
+        return redirect(url_for('task.view_tasks', user_id=user_id))
+    
+    task_repo.update_task_status(task_id, 'completed')
+    
+    file_manager = FileManager.get_instance()
+    reward_rows = file_manager.read_csv("Data/rewards.csv")
+    
+    xp = 0
+    coins = 0
+    for row in reward_rows:
+        if row[0] == task_id:
+            xp = int(row[1])
+            coins = int(row[2])
+            break
+    
+    user_rows = file_manager.read_csv("Data/users.csv")
+    for row in user_rows:
+        if row[0] == user_id:
+            current_xp = int(row[4])
+            current_coins = int(row[5])
+            row[4] = str(current_xp + xp)
+            row[5] = str(current_coins + coins)
+    
+    file_manager.write_csv("Data/users.csv", user_rows)
+    
+    flash(f'Task completed! +{xp} XP, +{coins} Coins')
     return redirect(url_for('task.view_tasks', user_id=user_id))
 
 @task_bp.route('/<user_id>')

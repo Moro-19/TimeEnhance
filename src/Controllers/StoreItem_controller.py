@@ -29,6 +29,10 @@ def view_items():
 @store_bp.route('/purchase/<item_id>', methods=['POST'])
 def purchase_item(item_id):
     user_id = session.get('user_id')
+    if not user_id:
+        flash('Please login first')
+        return redirect(url_for('user.login'))
+    
     items = item_repo.get_store_items()
     item = next((i for i in items if i.ItemID == item_id), None)
     
@@ -39,13 +43,27 @@ def purchase_item(item_id):
     users = user_repo.get_all_users()
     user = next((u for u in users if u.UserID == user_id), None)
     
+    if not user:
+        flash('User not found')
+        return redirect(url_for('store.view_items'))
+    
     inventory = inventory_repo.get_user_inventory(user_id)
     if any(inv.ItemID == item_id for inv in inventory):
         flash('Item already owned')
         return redirect(url_for('store.view_items'))
     
-    if user.TotalTimeCoins >= int(item.ItemPrice):
-        user.TotalTimeCoins -= int(item.ItemPrice)
+    if int(user.TotalTimeCoins) >= int(item.ItemPrice):
+        from Utils.File_manager import FileManager
+        file_manager = FileManager.get_instance()
+        user_rows = file_manager.read_csv("Data/users.csv")
+        
+        for row in user_rows:
+            if row[0] == user_id:
+                current_coins = int(row[5])
+                row[5] = str(current_coins - int(item.ItemPrice))
+        
+        file_manager.write_csv("Data/users.csv", user_rows)
+        
         new_inventory = Inventory(
             InventoryID=str(uuid.uuid4()),
             UserID=user_id,
@@ -56,7 +74,7 @@ def purchase_item(item_id):
         
         flash(f'Successfully purchased {item.ItemName}!')
     else:
-        coins_needed = int(item.ItemPrice) - user.TotalTimeCoins
+        coins_needed = int(item.ItemPrice) - int(user.TotalTimeCoins)
         flash(f'Not enough coins! You need {coins_needed} more coins.')
     
     return redirect(url_for('store.view_items'))
