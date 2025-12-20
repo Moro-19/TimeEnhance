@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory - Time Enhance{% endblock %}
+
+{% block content %}
+<div class="text-center mb-30">
+    <h1>🎒 My Inventory</h1>
+    <p style="color: #7F8C8D; font-size: 1.1em;">Your collected items and cosmetics</p>
+</div>
+
+{% if inventory %}
+<div class="card mb-30">
+    <h2>📊 Collection Stats</h2>
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ inventory|length }}</div>
+            <div class="stat-label">Total Items Owned</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ inventory|selectattr('status', 'equalto', 'equipped')|list|length }}</div>
+            <div class="stat-label">Currently Equipped</div>
+        </div>
+    </div>
+</div>
+
+<div class="inventory-grid">
+    {% for inv_item in inventory %}
+    <div class="inventory-item {% if inv_item.status == 'equipped' %}equipped{% endif %}">
+        <h3>{{ inv_item.item.ItemName }}</h3>
+        <p style="color: #7F8C8D; margin: 10px 0;">{{ inv_item.item.ItemDescription }}</p>
+        
+        {% if inv_item.status == 'equipped' %}
+            <span class="task-status status-completed" style="display: block; margin: 10px 0;">✅ EQUIPPED</span>
+            <form method="POST" action="/inventory/{{ user_id }}/remove/{{ inv_item.inventory_id }}">
+                <button type="submit" class="btn btn-danger" style="width: 100%;">
+                    ❌ Unequip
+                </button>
+            </form>
+        {% else %}
+            <span class="task-status status-pending" style="display: block; margin: 10px 0;">📦 STORED</span>
+            <form method="POST" action="/inventory/{{ user_id }}/add/{{ inv_item.inventory_id }}">
+                <button type="submit" class="btn btn-success" style="width: 100%;">
+                    ✅ Equip
+                </button>
+            </form>
+        {% endif %}
+        
+        <p style="color: #FF8C42; font-weight: bold; margin-top: 10px;">
+            Value: 🪙 {{ inv_item.item.ItemPrice }}
+        </p>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="card text-center">
+    <h2>🎒 Empty Inventory</h2>
+    <p style="color: #7F8C8D;">You haven't purchased any items yet!</p>
+    <p style="color: #2C3E50; margin: 20px 0;">
+        Complete tasks to earn Time Coins, then visit the store to unlock awesome cosmetics!
+    </p>
+    <a href="/store/" class="btn btn-warning mt-20">🛒 Visit Store</a>
+</div>
+{% endif %}
+
+<div class="card mt-30" style="background: #D5F5E3; border-color: #50C878;">
+    <h3>💡 About Inventory</h3>
+    <ul style="margin: 10px 0; padding-left: 20px; color: #2C3E50;">
+        <li><strong>Equip</strong> items to show them off and personalize your experience</li>
+        <li><strong>Unequip</strong> items to store them safely in your inventory</li>
+        <li>Collect all items to become a Time Enhance master!</li>
+    </ul>
+</div>
+
+<div class="text-center mt-30">
+    <a href="/" class="btn">🏠 Back to Dashboard</a>
+    <a href="/store/" class="btn btn-warning">🛒 Visit Store</a>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Time Enhance{% endblock %}
+
+{% block content %}
+<div class="text-center mb-30">
+    <h1>👋 Welcome back, {{ session.get('username', 'User') }}!</h1>
+    <p style="color: #7F8C8D; font-size: 1.1em;">Ready to crush your tasks today?</p>
+</div>
+
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-number">{{ user.TotalXP if user else 0 }}</div>
+        <div class="stat-label">Total XP</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">🪙 {{ user.TotalTimeCoins if user else 0 }}</div>
+        <div class="stat-label">Time Coins</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ level if level else 1 }}</div>
+        <div class="stat-label">Level</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ completed_tasks if completed_tasks else 0 }}</div>
+        <div class="stat-label">Completed Tasks</div>
+    </div>
+</div>
+
+<div class="card mt-30">
+    <h2>📊 Your Progress</h2>
+    <p style="color: #7F8C8D;">Keep completing tasks to level up and earn rewards!</p>
+    
+    {% if level %}
+    <div class="mt-20">
+        <p><strong>Current Level:</strong> {{ level }}</p>
+        <p><strong>XP Progress:</strong></p>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ progress_percentage if progress_percentage else 0 }}%;">
+                {{ progress_percentage if progress_percentage else 0 }}%
+            </div>
+        </div>
+        <p style="color: #7F8C8D; margin-top: 10px;">
+            {{ xp_for_next_level if xp_for_next_level else 100 }} XP needed for next level
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card mt-30">
+    <h2>🚀 Quick Actions</h2>
+    <div class="flex" style="gap: 15px; flex-wrap: wrap; margin-top: 20px;">
+        <a href="/tasks/{{ session.get('user_id') }}" class="btn">📋 View My Tasks</a>
+        <a href="/tasks/create" class="btn btn-success">➕ Create New Task</a>
+        <a href="/store/" class="btn btn-warning">🛒 Visit Store</a>
+        <a href="/inventory/{{ session.get('user_id') }}" class="btn">🎒 My Inventory</a>
+    </div>
+</div>
+
+<div class="card mt-30">
+    <h2>💡 Productivity Tips</h2>
+    <ul style="color: #2C3E50; line-height: 2;">
+        <li>🎯 Break large tasks into smaller, manageable chunks</li>
+        <li>⏰ Set realistic deadlines and stick to them</li>
+        <li>🎮 Complete tasks to earn XP and unlock cool rewards</li>
+        <li>📈 Track your progress and celebrate small wins</li>
+        <li>💪 Consistency is key - complete at least one task daily</li>
+    </ul>
+</div>
+{% endblock %}

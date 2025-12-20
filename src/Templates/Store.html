@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Store - Time Enhance{% endblock %}
+
+{% block content %}
+<div class="text-center mb-30">
+    <h1>🛒 Virtual Store</h1>
+    <p style="color: #7F8C8D; font-size: 1.1em;">Spend your Time Coins on awesome cosmetics!</p>
+</div>
+
+{% if user %}
+<div class="card mb-30">
+    <div class="flex-between">
+        <div>
+            <h2 style="margin: 0;">💰 Your Balance</h2>
+            <p style="color: #7F8C8D; margin: 5px 0;">Spend wisely!</p>
+        </div>
+        <div class="stat-number" style="color: #FF8C42;">🪙 {{ user.TotalTimeCoins }}</div>
+    </div>
+</div>
+{% endif %}
+
+{% if items %}
+<div class="store-grid">
+    {% for item in items %}
+    <div class="store-item {% if item.ItemID in owned_ids %}item-owned{% endif %}">
+        <h3>{{ item.ItemName }}</h3>
+        <p style="color: #7F8C8D; margin: 15px 0;">{{ item.ItemDescription }}</p>
+        <div class="item-price">{{ item.ItemPrice }}</div>
+        
+        {% if item.ItemID in owned_ids %}
+            <button class="btn btn-success" disabled style="width: 100%; opacity: 0.6; cursor: not-allowed;">
+                ✅ Already Owned
+            </button>
+        {% else %}
+            {% if user and user.TotalTimeCoins >= item.ItemPrice|int %}
+                <form method="POST" action="/store/purchase/{{ item.ItemID }}">
+                    <button type="submit" class="btn btn-warning" style="width: 100%;">
+                        🛒 Purchase
+                    </button>
+                </form>
+            {% else %}
+                <button class="btn" disabled style="width: 100%; opacity: 0.5; cursor: not-allowed;">
+                    💸 Not Enough Coins
+                </button>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card text-center">
+    <h2>🏪 Store is Empty</h2>
+    <p style="color: #7F8C8D;">No items available at the moment. Check back later!</p>
+</div>
+{% endif %}
+
+<div class="card mt-30" style="background: #D6EAF8; border-color: #4A90E2;">
+    <h3>💡 How to Earn More Coins</h3>
+    <ul style="margin: 10px 0; padding-left: 20px; color: #2C3E50;">
+        <li>Complete <strong>Easy</strong> tasks: 5 Coins</li>
+        <li>Complete <strong>Medium</strong> tasks: 10 Coins</li>
+        <li>Complete <strong>Hard</strong> tasks: 20 Coins</li>
+    </ul>
+    <p style="margin-top: 10px; color: #2C3E50;">
+        Keep completing tasks to unlock all items! 🚀
+    </p>
+</div>
+
+<div class="text-center mt-30">
+    <a href="/" class="btn">🏠 Back to Dashboard</a>
+    <a href="/inventory/{{ session.get('user_id') }}" class="btn btn-success">🎒 View My Inventory</a>
+</div>
+{% endblock %}

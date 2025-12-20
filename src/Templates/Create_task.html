@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Create Task - Time Enhance{% endblock %}
+
+{% block content %}
+<div class="text-center mb-30">
+    <h1>➕ Create New Task</h1>
+    <p style="color: #7F8C8D; font-size: 1.1em;">Add a task to boost your productivity!</p>
+</div>
+
+<div class="card" style="max-width: 700px; margin: 0 auto;">
+    <form method="POST" action="/tasks/create">
+        <div class="form-group">
+            <label for="title">Task Title *</label>
+            <input type="text" id="title" name="title" placeholder="e.g., Complete Lab 9" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description (Optional)</label>
+            <textarea id="description" name="description" rows="4" placeholder="Describe your task in detail..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="difficulty">Difficulty Level *</label>
+            <select id="difficulty" name="difficulty" required>
+                <option value="" disabled selected>Select difficulty</option>
+                <option value="easy">🟢 Easy (25 XP, 5 Coins)</option>
+                <option value="medium">🟡 Medium (50 XP, 10 Coins)</option>
+                <option value="hard">🔴 Hard (100 XP, 20 Coins)</option>
+            </select>
+        </div>
+        
+        <div class="card" style="background: #D6EAF8; border-color: #4A90E2; margin-top: 20px;">
+            <h3>💡 Difficulty Guide</h3>
+            <ul style="margin: 10px 0; padding-left: 20px; color: #2C3E50;">
+                <li><strong>Easy:</strong> Quick tasks (15-30 min) - Reading, organizing, simple reviews</li>
+                <li><strong>Medium:</strong> Moderate tasks (1-2 hours) - Homework, studying, project work</li>
+                <li><strong>Hard:</strong> Complex tasks (3+ hours) - Major projects, exams, presentations</li>
+            </ul>
+        </div>
+        
+        <div class="flex" style="gap: 15px; margin-top: 30px;">
+            <button type="submit" class="btn btn-success" style="flex: 1;">
+                ✅ Create Task
+            </button>
+            <a href="/tasks/{{ session.get('user_id') }}" class="btn" style="flex: 1; text-align: center;">
+                ❌ Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

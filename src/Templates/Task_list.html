@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}My Tasks - Time Enhance{% endblock %}
+
+{% block content %}
+<div class="text-center mb-30">
+    <h1>📋 My Tasks</h1>
+    <p style="color: #7F8C8D; font-size: 1.1em;">Stay organized and productive!</p>
+</div>
+
+<div class="mb-30">
+    <a href="/tasks/create" class="btn btn-success">➕ Create New Task</a>
+</div>
+
+{% if tasks %}
+    {% set pending_tasks = tasks|selectattr('Status', 'equalto', 'pending')|list %}
+    {% set completed_tasks = tasks|selectattr('Status', 'equalto', 'completed')|list %}
+    
+    {% if pending_tasks %}
+    <div class="mb-30">
+        <h2>⏳ Pending Tasks ({{ pending_tasks|length }})</h2>
+        {% for task in pending_tasks %}
+        <div class="card task-card">
+            <div class="card-header">
+                <h3 class="card-title" style="display: inline-block;">{{ task.Title }}</h3>
+                <span class="task-difficulty difficulty-{{ task.Difficulty }}">{{ task.Difficulty|upper }}</span>
+                <span class="task-status status-{{ task.Status }}">{{ task.Status|upper }}</span>
+            </div>
+            
+            <div class="card-body">
+                <p>{{ task.Description if task.Description else 'No description provided.' }}</p>
+            </div>
+            
+            <div class="card-footer">
+                <div>
+                    <form method="POST" action="/tasks/{{ user_id }}/complete/{{ task.TaskID }}" style="display: inline;">
+                        <button type="submit" class="btn btn-success btn-small">✅ Complete</button>
+                    </form>
+                    <a href="/tasks/{{ user_id }}/edit/{{ task.TaskID }}" class="btn btn-small">✏️ Edit</a>
+                </div>
+                <form method="POST" action="/tasks/{{ user_id }}/delete/{{ task.TaskID }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Are you sure you want to delete this task?')">🗑️ Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if completed_tasks %}
+    <div class="mb-30">
+        <h2>✅ Completed Tasks ({{ completed_tasks|length }})</h2>
+        {% for task in completed_tasks %}
+        <div class="card task-card completed">
+            <div class="card-header">
+                <h3 class="card-title" style="display: inline-block;">{{ task.Title }}</h3>
+                <span class="task-difficulty difficulty-{{ task.Difficulty }}">{{ task.Difficulty|upper }}</span>
+                <span class="task-status status-{{ task.Status }}">{{ task.Status|upper }}</span>
+            </div>
+            
+            <div class="card-body">
+                <p>{{ task.Description if task.Description else 'No description provided.' }}</p>
+            </div>
+            
+            <div class="card-footer">
+                <div>
+                    <strong style="color: #50C878;">✅ Task Completed!</strong>
+                </div>
+                <form method="POST" action="/tasks/{{ user_id }}/delete/{{ task.TaskID }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Are you sure you want to delete this task?')">🗑️ Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if not pending_tasks and not completed_tasks %}
+    <div class="card text-center">
+        <h2>🎯 No Tasks Yet!</h2>
+        <p style="color: #7F8C8D;">Create your first task to get started on your productivity journey!</p>
+        <a href="/tasks/create" class="btn btn-success mt-20">➕ Create Your First Task</a>
+    </div>
+    {% endif %}
+    
+{% else %}
+<div class="card text-center">
+    <h2>🎯 No Tasks Yet!</h2>
+    <p style="color: #7F8C8D;">Create your first task to get started on your productivity journey!</p>
+    <a href="/tasks/create" class="btn btn-success mt-20">➕ Create Your First Task</a>
+</div>
+{% endif %}
+
+<div class="text-center mt-30">
+    <a href="/" class="btn">🏠 Back to Dashboard</a>
+</div>
+{% endblock %}

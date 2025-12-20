@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Time Enhance{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>⏰ Time Enhance</h1>
+            <p>Boost Your Productivity with Gamification</p>
+        </div>
+        
+        {% if session.get('user_id') %}
+        <nav class="navbar">
+            <a href="/">🏠 Home</a>
+            <a href="/tasks/{{ session.get('user_id') }}">📋 My Tasks</a>
+            <a href="/tasks/create">➕ Create Task</a>
+            <a href="/store/">🛒 Store</a>
+            <a href="/inventory/{{ session.get('user_id') }}">🎒 Inventory</a>
+            <a href="/users/{{ session.get('user_id') }}/profile">👤 Profile</a>
+            <a href="/users/logout">🚪 Logout</a>
+        </nav>
+        {% endif %}
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="flash info">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

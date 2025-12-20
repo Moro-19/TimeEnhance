@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Time Enhance{% endblock %}
+
+{% block content %}
+<div class="text-center mb-30">
+    <h1>👤 {{ user.Username if user else 'User' }}'s Profile</h1>
+</div>
+
+{% if user %}
+<div class="card">
+    <h2>📊 Account Information</h2>
+    <table>
+        <tr>
+            <th>Username</th>
+            <td>{{ user.Username }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ user.Email }}</td>
+        </tr>
+        <tr>
+            <th>User ID</th>
+            <td>{{ user.UserID }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="card mt-30">
+    <h2>🎮 Gaming Stats</h2>
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ level if level else 1 }}</div>
+            <div class="stat-label">Current Level</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ user.TotalXP }}</div>
+            <div class="stat-label">Total XP</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">🪙 {{ user.TotalTimeCoins }}</div>
+            <div class="stat-label">Time Coins</div>
+        </div>
+    </div>
+    
+    {% if level %}
+    <div class="mt-30">
+        <h3>Progress to Level {{ level + 1 }}</h3>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ progress_percentage if progress_percentage else 0 }}%;">
+                {{ current_level_xp if current_level_xp else 0 }} / {{ current_level_xp + xp_for_next_level if xp_for_next_level else 100 }} XP
+            </div>
+        </div>
+        <p class="text-center mt-10" style="color: #7F8C8D;">
+            {{ xp_for_next_level if xp_for_next_level else 100 }} XP needed for next level
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card mt-30">
+    <h2>🏆 Achievements</h2>
+    <p style="color: #7F8C8D;">Keep completing tasks to unlock achievements!</p>
+    <div class="mt-20">
+        <div class="card" style="background: #D5F5E3; border-color: #50C878;">
+            <strong>🌟 Task Master</strong> - Complete your first task
+        </div>
+        <div class="card" style="background: #D6EAF8; border-color: #4A90E2;">
+            <strong>💰 Coin Collector</strong> - Earn 100 Time Coins
+        </div>
+        <div class="card" style="background: #FEF5E7; border-color: #F39C12;">
+            <strong>📈 Level Up</strong> - Reach Level 5
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="card">
+    <h2>⚠️ User Not Found</h2>
+    <p>Could not load profile information.</p>
+</div>
+{% endif %}
+
+<div class="text-center mt-30">
+    <a href="/" class="btn">🏠 Back to Dashboard</a>
+</div>
+{% endblock %}
