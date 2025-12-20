@@ -15,7 +15,7 @@ from Models.StoreItem import StoreItem
 class TestUserController:
     @patch("Controllers.User_controller.user_repo")
     def test_login_route_get(self, mock_repo, client):
-        response = client.get('/users/Login')
+        response = client.get('/users/login')
         
         assert response.status_code == 200
     
@@ -24,7 +24,7 @@ class TestUserController:
         mock_user = User("user1", "testuser", "hash", "test@test.com", 150, 50)
         mock_repo.get_all_users.return_value = [mock_user]
         
-        response = client.get('/users/user1/Profile')
+        response = client.get('/users/user1/profile')
         
         assert response.status_code == 200
 
