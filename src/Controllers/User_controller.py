@@ -45,7 +45,10 @@ def view_profile(user_id):
     if not user:
         return render_template('profile.html', user=None, level=0)
     
-    total_xp = user.TotalXP
+    total_xp = int(user.TotalXP) if user.TotalXP else 0
+    user.TotalXP = total_xp
+    user.TotalTimeCoins = int(user.TotalTimeCoins) if user.TotalTimeCoins else 0
+    
     level = 1
     xp_required = 100  
     xp_accumulated = 0 
@@ -57,7 +60,7 @@ def view_profile(user_id):
 
     current_level_xp = total_xp - xp_accumulated  
     xp_for_next_level = xp_required - current_level_xp  
-    progress_percentage = int((current_level_xp / xp_required) * 100)
+    progress_percentage = int((current_level_xp / xp_required) * 100) if xp_required > 0 else 0
     
     return render_template('profile.html', 
                          user=user, 

@@ -18,6 +18,9 @@ def view_items():
     users = user_repo.get_all_users()
     user = next((u for u in users if u.UserID == user_id), None)
     
+    if user:
+        user.TotalTimeCoins = int(user.TotalTimeCoins) if user.TotalTimeCoins else 0
+    
     inventory = inventory_repo.get_user_inventory(user_id)
     owned_ids = [inv.ItemID for inv in inventory]
     
