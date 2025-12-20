@@ -8,9 +8,13 @@ from Repositories.User_repo import UserRepository
 from Repositories.Task_repo import TaskRepository
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
 app = Flask(__name__, 
-            template_folder='templates',
-            static_folder='static')
+            template_folder=TEMPLATE_DIR,
+            static_folder=STATIC_DIR)
 app.secret_key = 'supersecretkey'
 
 app.register_blueprint(user_bp)
