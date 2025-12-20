@@ -8,12 +8,19 @@ class TaskRepository:
         self.file_manager = FileManager.get_instance()
 
     def get_tasks_for_user(self, user_id):
-        rows = self.file_manager.read_csv(self.FILE_PATH)
-        tasks = []
-        for row in rows:
-            if row[1] == str(user_id):
-                tasks.append(Task(*row))
-        return tasks
+      rows = self.file_manager.read_csv(self.FILE_PATH)
+      tasks = []
+      for row in rows:
+        if row[1] == str(user_id):
+
+            tasks.append(Task(
+                TaskID=row[0],
+                Title=row[2],
+                Description=row[3],
+                Difficulty=row[4],
+                Status=row[5]
+            ))
+      return tasks
 
     def save_task(self, task, user_id):
         rows = self.file_manager.read_csv(self.FILE_PATH)
